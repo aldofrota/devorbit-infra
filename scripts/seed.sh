@@ -31,40 +31,44 @@ spec:
     spec:
       containers:
       - name: seed
-        image: postgres:15
+        image: mongo:7.0
         command:
         - /bin/bash
         - -c
         - |
           set -e
-          echo "Aguardando PostgreSQL..."
-          until pg_isready -h postgres -p 5432 -U postgres; do
+          echo "Aguardando MongoDB..."
+          until mongosh --eval "db.adminCommand('ping')" >/dev/null 2>&1; do
             sleep 2
           done
           
           echo "Criando dados iniciais..."
-          psql -h postgres -U postgres -d devorbit << 'EOF'
-          -- Criar usuário de teste
-          INSERT INTO users (email, name, password_hash, created_at) 
-          VALUES ('user@devorbit.com', 'Usuário Teste', '\$2b\$10\$dummy.hash.for.testing', NOW())
-          ON CONFLICT (email) DO NOTHING;
+          mongosh devorbit << 'EOF'
+          // Criar usuário de teste
+          db.users.insertOne({
+            email: 'user@devorbit.com',
+            name: 'Usuário Teste',
+            password_hash: '\$2b\$10\$dummy.hash.for.testing',
+            created_at: new Date()
+          });
           
-          -- Criar tribo de teste
-          INSERT INTO tribes (name, description, created_at)
-          VALUES ('Comunidade', 'Tribo de teste para desenvolvimento', NOW())
-          ON CONFLICT (name) DO NOTHING;
+          // Criar tribo de teste
+          db.tribes.insertOne({
+            name: 'Comunidade',
+            description: 'Tribo de teste para desenvolvimento',
+            created_at: new Date()
+          });
           
-          -- Criar projeto de teste
-          INSERT INTO projects (name, description, tribe_id, created_at)
-          SELECT 'Projeto Teste', 'Projeto para testes de PR', t.id, NOW()
-          FROM tribes t WHERE t.name = 'Comunidade'
-          ON CONFLICT (name) DO NOTHING;
+          // Criar projeto de teste
+          db.projects.insertOne({
+            name: 'Projeto Teste',
+            description: 'Projeto para testes de PR',
+            tribe_name: 'Comunidade',
+            created_at: new Date()
+          });
           
-          echo "Dados iniciais criados com sucesso!"
+          print("Dados iniciais criados com sucesso!");
           EOF
-        env:
-        - name: PGPASSWORD
-          value: "devorbit123"
       restartPolicy: OnFailure
       backoffLimit: 3
 EOF

@@ -4,27 +4,27 @@
 
 Criar uma infraestrutura local para testes de Pull Requests da plataforma DevOrbit com:
 
-* Subdomínio único por PR (ex: `abc123.127.0.0.1.nip.io`)
-* Todos os serviços (frontend, backend, sso) no mesmo namespace (ex: `devorbit-abc123`)
-* Cada serviço com imagem específica (ex: frontend PR #42, sso PR #18)
-* Comunicação entre os serviços via DNS interno (ex: `http://backend:3000`)
-* Banco, Redis, Kafka para apoio
-* Seed de dados automatizado
-* Criação via bot Slack com feedback em tempo real
-* Limpeza automática após X horas
+- Subdomínio único por PR (ex: `abc123.127.0.0.1.nip.io`)
+- Todos os serviços (frontend, backend, sso) no mesmo namespace (ex: `devorbit-abc123`)
+- Cada serviço com imagem específica (ex: frontend PR #42, sso PR #18)
+- Comunicação entre os serviços via DNS interno (ex: `http://backend:3000`)
+- Banco, Redis, Kafka para apoio
+- Seed de dados automatizado
+- Criação via bot Slack com feedback em tempo real
+- Limpeza automática após X horas
 
 ---
 
 ### 📦 Requisitos
 
-* Docker
-* Conta no DockerHub (para push de imagens públicas)
-* Node.js (para bot Slack)
-* `kubectl`
-* [`kind`](https://kind.sigs.k8s.io/) (Kubernetes local)
-* `helm`
-* `terraform`
-* `jq` e `yq` (CLI para manipulação de JSON/YAML)
+- Docker
+- Conta no DockerHub (para push de imagens públicas)
+- Node.js (para bot Slack)
+- `kubectl`
+- [`kind`](https://kind.sigs.k8s.io/) (Kubernetes local)
+- `helm`
+- `terraform`
+- `jq` e `yq` (CLI para manipulação de JSON/YAML)
 
 ---
 
@@ -39,8 +39,9 @@ devorbit-infra/
 │   ├── frontend/
 │   ├── backend/
 │   ├── sso/
-│   ├── postgres/
-│   └── redis/
+│   ├── mongodb/
+│   ├── redis/
+│   └── kafka/
 ├── terraform/                   # Código para provisionamento local
 │   ├── main.tf
 │   ├── variables.tf
@@ -64,8 +65,8 @@ Se os repositórios forem públicos, você pode usar o DockerHub:
 
 **Requisitos:**
 
-* Criar repositório público no DockerHub: `devorbit/frontend`, `devorbit/backend`, etc.
-* Configurar `secrets.DOCKERHUB_USERNAME` e `secrets.DOCKERHUB_TOKEN` no GitHub
+- Criar repositório público no DockerHub: `devorbit/frontend`, `devorbit/backend`, etc.
+- Configurar `secrets.DOCKERHUB_USERNAME` e `secrets.DOCKERHUB_TOKEN` no GitHub
 
 **Exemplo de GitHub Action (frontend/.github/workflows/pr.yml):**
 
@@ -75,7 +76,7 @@ name: Build PR Image
 on:
   pull_request:
     paths:
-      - '**'
+      - "**"
 
 jobs:
   build:
@@ -131,10 +132,10 @@ Todos os serviços se comunicam via DNS interno do Kubernetes (`backend`, `sso`,
 
 ### 🧪 Seed, TTL e Slack Bot
 
-* Script `seed.sh` roda Job de inicialização com dados fake
-* TTL é marcado por label: `devorbit/ttl: "2h"`
-* CronJob local remove namespaces expirados
-* Bot Slack envia instruções, executa Terraform e Helm, responde com o domínio e acesso
+- Script `seed.sh` roda Job de inicialização com dados fake
+- TTL é marcado por label: `devorbit/ttl: "2h"`
+- CronJob local remove namespaces expirados
+- Bot Slack envia instruções, executa Terraform e Helm, responde com o domínio e acesso
 
 ---
 

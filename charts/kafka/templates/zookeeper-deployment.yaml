@@ -1,0 +1,52 @@
+{{- if .Values.zookeeper.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "zookeeper.fullname" . }}
+  labels:
+    {{- include "zookeeper.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "zookeeper.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "zookeeper.selectorLabels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ include "kafka.serviceAccountName" . }}
+      containers:
+        - name: zookeeper
+          image: "{{ .Values.zookeeper.image.repository }}:{{ .Values.zookeeper.image.tag }}"
+          ports:
+            - name: client
+              containerPort: {{ .Values.zookeeper.port }}
+              protocol: TCP
+          env:
+            - name: ZOOKEEPER_CLIENT_PORT
+              value: "{{ .Values.zookeeper.port }}"
+            - name: ZOOKEEPER_TICK_TIME
+              value: "2000"
+          livenessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - "echo ruok | nc localhost {{ .Values.zookeeper.port }}"
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - "echo ruok | nc localhost {{ .Values.zookeeper.port }}"
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 1
+          resources:
+            {{- toYaml .Values.zookeeper.resources | nindent 12 }}
+{{- end }} 

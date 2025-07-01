@@ -1,0 +1,72 @@
+replicaCount: 1
+
+image:
+  repository: confluentinc/cp-kafka
+  pullPolicy: IfNotPresent
+  tag: "7.4.0"
+
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext: {}
+
+securityContext: {}
+
+service:
+  type: ClusterIP
+  port: 9092
+
+resources:
+  limits:
+    cpu: 1000m
+    memory: 1Gi
+  requests:
+    cpu: 200m
+    memory: 512Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+# Configurações do Kafka
+kafka:
+  port: 9092
+  listeners:
+    - name: internal
+      port: 9092
+      protocol: PLAINTEXT
+  autoCreateTopicsEnable: true
+  deleteTopicEnable: true
+  logRetentionHours: 168
+  logRetentionBytes: 1073741824
+
+# Configurações do Zookeeper (simplificado para desenvolvimento)
+zookeeper:
+  enabled: true
+  image:
+    repository: confluentinc/cp-zookeeper
+    tag: "7.4.0"
+  port: 2181
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+# Persistência
+persistence:
+  enabled: false
+  storageClass: ""
+  accessMode: ReadWriteOnce
+  size: 10Gi

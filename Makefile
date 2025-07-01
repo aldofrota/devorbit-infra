@@ -64,6 +64,16 @@ cleanup: ## Executa limpeza de ambientes expirados
 	./scripts/cleanup.sh
 	@echo "✅ Limpeza concluída!"
 
+deploy-databases: ## Deploya bancos de dados (PostgreSQL, Redis, Kafka)
+	@echo "🗄️ Deployando bancos de dados..."
+	./scripts/deploy-databases.sh $(NAMESPACE) $(HASH)
+	@echo "✅ Bancos de dados deployados!"
+
+test-databases: ## Testa conexões com bancos de dados
+	@echo "🧪 Testando conexões..."
+	./scripts/test-connections.sh $(NAMESPACE)
+	@echo "✅ Testes concluídos!"
+
 deploy-full: setup kind-create terraform-init terraform-apply helm-deploy ## Deploy completo do ambiente
 	@echo "🎉 Deploy completo concluído!"
 	@echo "🌐 URL: https://$(DOMAIN)"
@@ -73,6 +83,9 @@ deploy-full: setup kind-create terraform-init terraform-apply helm-deploy ## Dep
 # Comandos de desenvolvimento
 dev-setup: setup kind-create terraform-init ## Setup para desenvolvimento
 	@echo "✅ Ambiente de desenvolvimento configurado!"
+
+dev-databases: kind-create deploy-databases test-databases ## Setup completo com bancos de dados
+	@echo "✅ Ambiente com bancos de dados configurado!"
 
 dev-cleanup: cleanup kind-delete ## Limpeza completa para desenvolvimento
 	@echo "✅ Ambiente de desenvolvimento limpo!" 
