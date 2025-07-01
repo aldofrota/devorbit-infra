@@ -1,4 +1,4 @@
-resource "helm_release" "postgres" {
+resource "helm_release" "mongodb" {
   name       = "mongodb"
   repository = "https://charts.bitnami.com/bitnami"
   chart      = "mongodb"
