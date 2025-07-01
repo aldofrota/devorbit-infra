@@ -1,0 +1,40 @@
+name: Cleanup Expired Environments
+
+on:
+  schedule:
+    # Executar a cada hora
+    - cron: "0 * * * *"
+  workflow_dispatch: # Permitir execução manual
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: "latest"
+
+      - name: Configure kubectl for kind
+        run: |
+          # Configurar kubectl para o cluster kind local
+          # Isso assume que o kind está rodando localmente
+          kind export kubeconfig --name devorbit-staging
+
+      - name: Run cleanup script
+        run: |
+          chmod +x ./scripts/cleanup.sh
+          ./scripts/cleanup.sh
+
+      - name: Report cleanup results
+        run: |
+          echo "🧹 Limpeza de ambientes expirados concluída"
+          echo "Timestamp: $(date)"
+
+          # Listar ambientes restantes
+          echo "📊 Ambientes ativos:"
+          kubectl get namespaces -l devorbit/hash -o custom-columns="NAMESPACE:.metadata.name,TTL:.metadata.labels.devorbit/ttl,CREATED:.metadata.labels.devorbit/created-at" || echo "Nenhum ambiente encontrado"

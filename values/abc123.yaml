@@ -1,0 +1,66 @@
+# Valores específicos para ambiente abc123
+# Este arquivo é gerado automaticamente pelo bot do Slack
+
+hash: "abc123"
+ttl_hours: 2
+domain_suffix: "127.0.0.1.nip.io"
+
+frontend:
+  image:
+    repository: devorbit/frontend
+    tag: "pr-42"
+  ingress:
+    hosts:
+      - host: "abc123.127.0.0.1.nip.io"
+        paths:
+          - path: "/"
+            pathType: Prefix
+
+backend:
+  image:
+    repository: devorbit/backend
+    tag: "main"
+  env:
+    - name: DATABASE_URL
+      value: "postgresql://postgres:devorbit123@postgres:5432/devorbit"
+    - name: REDIS_URL
+      value: "redis://:devorbit123@redis:6379"
+
+sso:
+  image:
+    repository: devorbit/sso
+    tag: "pr-18"
+  env:
+    - name: DATABASE_URL
+      value: "postgresql://postgres:devorbit123@postgres:5432/devorbit"
+    - name: REDIS_URL
+      value: "redis://:devorbit123@redis:6379"
+
+# Configurações de banco de dados
+postgres:
+  auth:
+    postgresPassword: "devorbit123"
+    database: "devorbit"
+  primary:
+    persistence:
+      size: "1Gi"
+
+# Configurações do Redis
+redis:
+  auth:
+    password: "devorbit123"
+  master:
+    persistence:
+      size: "1Gi"
+
+# Configurações do Traefik
+traefik:
+  ingressRoute:
+    dashboard:
+      enabled: true
+  ports:
+    websecure:
+      tls:
+        enabled: false
+  service:
+    type: LoadBalancer
