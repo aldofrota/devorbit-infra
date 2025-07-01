@@ -1,27 +1,32 @@
 resource "helm_release" "postgres" {
-  name       = "postgres"
+  name       = "mongodb"
   repository = "https://charts.bitnami.com/bitnami"
-  chart      = "postgresql"
+  chart      = "mongodb"
   namespace  = var.namespace_name
   create_namespace = false
 
   set {
-    name  = "auth.postgresPassword"
+    name  = "auth.mongodbPassword"
     value = "devorbit123"
   }
 
   set {
-    name  = "auth.database"
+    name  = "auth.mongodbDatabase"
     value = "devorbit"
   }
 
   set {
-    name  = "primary.persistence.size"
+    name  = "primary.persistence.storageClass"
     value = "1Gi"
   }
 
   set {
     name  = "service.type"
-    value = "ClusterIP"
+    value = "LoadBalancer"
+  }
+
+  set {
+    name  = "service.port"
+    value = "27017"
   }
 } 
